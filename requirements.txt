@@ -1,0 +1,3 @@
+PyQtUIkit~=2.8.2
+qasync~=0.27.1
+PyQt6~=6.6.1
