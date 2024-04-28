@@ -1,5 +1,6 @@
 import asyncio
 
+from PyQt6.QtCore import pyqtSignal
 from PyQtUIkit.themes.locale import KitLocaleString
 from PyQtUIkit.widgets import *
 from qasync import asyncSlot
@@ -13,6 +14,8 @@ from src.ui.board.board_widget import BoardWidget
 
 
 class GameScreen(KitHBoxLayout):
+    closeRequested = pyqtSignal()
+
     def __init__(self, sm: SettingsManager, api: ApiService):
         super().__init__()
         self._sm = sm
@@ -27,6 +30,15 @@ class GameScreen(KitHBoxLayout):
         right_layout.spacing = 6
         right_layout.setFixedWidth(200)
         self.addWidget(right_layout)
+
+        top_layout = KitHBoxLayout()
+        top_layout.spacing = 6
+        right_layout.addWidget(top_layout)
+
+        self._button_back = KitIconButton('line-arrow-back')
+        self._button_back.size = 32
+        self._button_back.on_click = self.closeRequested.emit
+        top_layout.addWidget(self._button_back)
 
         right_layout.addWidget(KitLabel(KitLocaleString.white + ':'))
         self._white_combo_box = KitComboBox()
@@ -66,8 +78,9 @@ class GameScreen(KitHBoxLayout):
 
     @asyncSlot()
     async def _on_move_selected(self, pos):
-        await self._api.boards.move(self._fig.pos, pos)
-        self._board_widget.move_figure(self._fig.pos, pos)
+        res = await self._api.boards.move(self._fig.pos, pos)
+        # if res:
+        #     self._board_widget.move_figure(self._fig.pos, pos)
 
     @asyncSlot()
     async def _on_new_move(self, move: Move):

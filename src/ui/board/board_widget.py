@@ -44,6 +44,8 @@ class BoardWidget(KitHBoxLayout):
         widget.show()
 
     def move_figure(self, src, dst):
+        if src not in self.__figures:
+            return
         fig = self.__figures[src]
         fig.set_pos(dst, anim=True)
         if dst in self.__figures:
@@ -64,10 +66,12 @@ class BoardWidget(KitHBoxLayout):
         elif pos in self.__figures:
             self.figSelected.emit(self.__figures[pos].figure)
 
-    def show_available_moves(self, src, moves):
+    def show_available_moves(self, src, moves: list):
         for cage in self.__cages.values():
             cage.set_not_available()
         self.__cages[src].set_move_this()
+        if src in moves:
+            moves.remove(src)
         for move in moves:
             if move in self.__figures:
                 self.__cages[move].set_eat_available()

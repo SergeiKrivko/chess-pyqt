@@ -1,4 +1,5 @@
 from PyQt6.QtCore import Qt, pyqtSignal
+from PyQtUIkit.themes.locale import KitLocaleString
 from PyQtUIkit.widgets import *
 from qasync import asyncSlot
 
@@ -22,7 +23,7 @@ class MyBoardsScreen(KitVBoxLayout):
         top_layout.spacing = 6
         self.addWidget(top_layout)
 
-        self._button_new = KitButton("New")
+        self._button_new = KitButton(KitLocaleString.new)
         self._button_new.setFixedSize(60, 24)
         self._button_new.on_click = lambda: self._new_game()
         top_layout.addWidget(self._button_new)
@@ -34,9 +35,9 @@ class MyBoardsScreen(KitVBoxLayout):
         self._line_edit = KitLineEdit()
         group.addItem(self._line_edit)
 
-        self._button_enroll = KitButton("Enroll")
-        self._button_enroll.on_click = lambda: self._enroll()
-        group.addItem(self._button_enroll)
+        self._button_join = KitButton(KitLocaleString.join)
+        self._button_join.on_click = lambda: self._join()
+        group.addItem(self._button_join)
 
         self._scroll_area = KitScrollArea()
         self._scroll_area.main_palette = 'Bg'
@@ -47,12 +48,12 @@ class MyBoardsScreen(KitVBoxLayout):
         scroll_layout.spacing = 6
         self._scroll_area.setWidget(scroll_layout)
 
-        scroll_layout.addWidget(KitLabel("Owner:"))
+        scroll_layout.addWidget(KitLabel(KitLocaleString.owner + ':'))
         self._owner_layout = KitVBoxLayout()
         self._owner_layout.spacing = 2
         scroll_layout.addWidget(self._owner_layout)
 
-        scroll_layout.addWidget(KitLabel("Invited:"))
+        scroll_layout.addWidget(KitLabel(KitLocaleString.invited + ':'))
         self._invited_layout = KitVBoxLayout()
         self._invited_layout.spacing = 2
         scroll_layout.addWidget(self._invited_layout)
@@ -73,8 +74,8 @@ class MyBoardsScreen(KitVBoxLayout):
         await self._api.boards.new()
 
     @asyncSlot()
-    async def _enroll(self):
-        await self._api.boards.enroll(self._line_edit.text)
+    async def _join(self):
+        await self._api.boards.join(self._line_edit.text)
 
 
 class GameItem(KitLayoutButton):
@@ -111,6 +112,7 @@ class GameItem(KitLayoutButton):
 
         self._button_copy_code = KitIconButton('solid-copy')
         self._button_copy_code.size = 24
+        self._button_copy_code.on_click = lambda: KitApplication.clipboard().setText(self._code_line.text)
         self._invitation_code_widget.addItem(self._button_copy_code)
 
         self.on_click = lambda: print(self._label.text)

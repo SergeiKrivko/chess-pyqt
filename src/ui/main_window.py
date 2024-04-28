@@ -34,6 +34,7 @@ class MainWindow(KitMainWindow):
         self._main_layout.addWidget(self._main)
 
         self._game_screen = GameScreen(self._sm, self._api)
+        self._game_screen.closeRequested.connect(self._close_board)
         self._main_layout.addWidget(self._game_screen)
 
         self._api.userChanged.connect(self._on_user_changed)
@@ -49,3 +50,7 @@ class MainWindow(KitMainWindow):
         self._api.boards.open(board_id)
         self._main_layout.setCurrent(2)
         self._game_screen.open()
+
+    def _close_board(self):
+        self._api.boards.close()
+        self._main_layout.setCurrent(1)

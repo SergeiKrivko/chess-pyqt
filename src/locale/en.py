@@ -10,4 +10,8 @@ locale = KitLocale('en', 'English', {
     'white': "White",
     'black': "Black",
     'you': "You",
+    'join': "Join",
+    'new': "New",
+    'owner': "Owner",
+    'invited': "Invited",
 })

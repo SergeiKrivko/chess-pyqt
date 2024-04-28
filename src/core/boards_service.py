@@ -22,6 +22,7 @@ class BoardsService(QObject):
         self._current = None
 
         self._now_moves = None
+        self._available_moves = []
 
         self._last_move: Move | None = None
         self._las_last_move_id: str | None = None
@@ -57,6 +58,7 @@ class BoardsService(QObject):
 
     @asyncSlot()
     async def _download_boards(self):
+
         while True:
             if self._current is None:
                 res1 = await self._api.get(f"boards?owner={self._sm.uid}")
@@ -65,9 +67,14 @@ class BoardsService(QObject):
                     board = Board(el)
                     if board.id in self._boards:
                         continue
+
+                    invitations = await self._api.get(f'invitations?board={board.id}')
+                    if invitations:
+                        board.code = invitations[0]['code']
+
                     self._boards[board.id] = board
                     self.newBoard.emit(board)
-            await asyncio.sleep(2)
+            await asyncio.sleep(5)
 
     async def new(self):
         board_id = await self._api.post('boards', {
@@ -85,7 +92,7 @@ class BoardsService(QObject):
         board.code = invitation_code
         return board_id, invitation_code
 
-    async def enroll(self, code: str):
+    async def join(self, code: str):
         invitation = await self._api.get(f'invitations/{code}')
 
         await self._api.post(f"boards/{invitation['board']}/invited", {
@@ -106,7 +113,7 @@ class BoardsService(QObject):
         while self._current == board_id:
             await self._check_move()
             await self._update_board()
-            await asyncio.sleep(1)
+            await asyncio.sleep(3)
 
     async def _check_move(self):
         move = await self._api.get(f'moves/last?board={self._current}')
@@ -114,6 +121,7 @@ class BoardsService(QObject):
             if self.board.white == self._sm.uid and not self.move_required:
                 self._now_moves = 'white'
                 self.newMove.emit(None)
+                self._available_moves.clear()
             return
         move = Move(move)
         if move != self._last_move:
@@ -123,6 +131,7 @@ class BoardsService(QObject):
                 self._last_move = move
                 self._now_moves = 'white' if move.actor == 'black' else 'black'
                 self.newMove.emit(move)
+            self._available_moves.clear()
 
     async def _update_board(self):
         board = self.board
@@ -158,17 +167,22 @@ class BoardsService(QObject):
         if not self.move_required:
             print("Can not move now!")
             return
-        self._now_moves = 'white' if self.is_black else 'black'
         move = await self._api.post(f'moves', dct := {
             'board': self._current,
             'actor': 'white' if self.is_white else 'black',
             'src': src,
             'dst': dst,
         })
+        if not move:
+            return False
+        self._now_moves = 'white' if self.is_black else 'black'
         dct['uuid'] = move
         self._last_move = Move(dct)
         self.newMove.emit(self._last_move)
+        self._available_moves.clear()
+        return True
 
-    async def available_moves(self, srs):
-        # moves = await self._api.get(f'moves/available?board={self._current}')
-        return [f"{'abcdefgh'[i]}{j + 1}" for i in range(8) for j in range(8)]
+    async def available_moves(self, src):
+        if not self._available_moves:
+            self._available_moves = await self._api.get(f'moves/legal?board={self._current}')
+        return [move['dst'] for move in filter(lambda m: m['src'] == src, self._available_moves)]
