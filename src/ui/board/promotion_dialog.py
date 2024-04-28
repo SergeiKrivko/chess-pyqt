@@ -1,4 +1,5 @@
 from PyQt6.QtCore import Qt
+from PyQtUIkit.themes.locale import KitLocaleString
 from PyQtUIkit.widgets import *
 
 
@@ -36,7 +37,7 @@ class PromotionItem(KitLayoutButton):
         self._icon_widget.setFixedSize(64, 64)
         self.addWidget(self._icon_widget)
 
-        self._label = KitLabel(promotion)
+        self._label = KitLabel(KitLocaleString.get(promotion))
         self._label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.addWidget(self._label)
 

@@ -100,6 +100,7 @@ class BoardWidget(KitHBoxLayout):
         self.__moves.clear()
 
     def clear(self):
+        self.hide_available_moves()
         for el in self.__figures.values():
             el.hide()
             el.setParent(None)

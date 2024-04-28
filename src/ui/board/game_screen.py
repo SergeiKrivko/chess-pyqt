@@ -1,6 +1,8 @@
 import asyncio
+from enum import Enum
 
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, Qt
+from PyQtUIkit.core import KitFont
 from PyQtUIkit.themes.locale import KitLocaleString
 from PyQtUIkit.widgets import *
 from qasync import asyncSlot
@@ -45,7 +47,16 @@ class GameScreen(KitHBoxLayout):
         self._white_combo_box.currentValueChanged.connect(lambda: self._on_state_changed())
         right_layout.addWidget(self._white_combo_box)
 
-        right_layout.addWidget(KitVBoxLayout(), 200)
+        self._white_check_widget = CheckWidget()
+        self._white_check_widget.hide()
+        right_layout.addWidget(self._white_check_widget)
+
+        self._status_widget = StatusWidget()
+        right_layout.addWidget(self._status_widget, 200)
+
+        self._black_check_widget = CheckWidget()
+        self._black_check_widget.hide()
+        right_layout.addWidget(self._black_check_widget)
 
         right_layout.addWidget(KitLabel(KitLocaleString.black + ':'))
         self._black_combo_box = KitComboBox()
@@ -66,7 +77,6 @@ class GameScreen(KitHBoxLayout):
 
     def _load_state(self):
         self._board_widget.clear()
-        print(self._api.boards.board.state)
         for item in self._api.boards.board.state.values():
             self._board_widget.add_figure(item)
 
@@ -87,6 +97,20 @@ class GameScreen(KitHBoxLayout):
             self._board_widget.move_figure(move.src, move.dst)
             await asyncio.sleep(config.MOVE_DURATION / 1000)
         self._load_state()
+        self._update_game_status()
+
+    def _update_game_status(self):
+        board = self._api.boards.board
+        self._white_check_widget.setHidden(board.status != 'check' or self._api.boards.now_moves != 'white')
+        self._black_check_widget.setHidden(board.status != 'check' or self._api.boards.now_moves != 'black')
+
+        if board.status == 'checkmate':
+            status = StatusWidget.Status.CHECKMATE_WHITE if board.winner == 'white' \
+                else StatusWidget.Status.CHECKMATE_BLACK
+        else:
+            status = StatusWidget.Status.WHITE_MOVES if self._api.boards.now_moves == 'white' \
+                else StatusWidget.Status.BLACK_MOVES
+        self._status_widget.set_status(status)
 
     @asyncSlot()
     async def _load_ui(self):
@@ -114,3 +138,53 @@ class GameScreen(KitHBoxLayout):
         board.black = self._black_combo_box.currentValue()
         await self._api.boards.upload_board(board)
 
+
+class CheckWidget(KitHBoxLayout):
+    def __init__(self):
+        super().__init__()
+
+        icon = KitIconWidget('solid-skull')
+        icon.setFixedSize(32, 32)
+        self.addWidget(icon)
+
+        self.addWidget(KitLabel(KitLocaleString.check))
+
+
+class StatusWidget(KitVBoxLayout):
+    class Status(Enum):
+        WHITE_MOVES = 0
+        BLACK_MOVES = 1
+        CHECKMATE_WHITE = 2
+        CHECKMATE_BLACK = 3
+
+    def __init__(self):
+        super().__init__()
+        self.spacing = 10
+
+        self.addWidget(KitVBoxLayout(), 100)
+
+        self._icon = KitIconWidget('solid-time')
+        self._icon.setFixedHeight(100)
+        self.addWidget(self._icon)
+
+        self._label = KitLabel(KitLocaleString.white_moves)
+        self._label.font_size = KitFont.Size.BIG
+        self._label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.addWidget(self._label)
+
+        self.addWidget(KitVBoxLayout(), 100)
+
+    def set_status(self, status: Status):
+        match status:
+            case StatusWidget.Status.WHITE_MOVES:
+                self._icon.icon = 'solid-time'
+                self._label.text = KitLocaleString.white_moves
+            case StatusWidget.Status.BLACK_MOVES:
+                self._icon.icon = 'solid-time'
+                self._label.text = KitLocaleString.black_moves
+            case StatusWidget.Status.CHECKMATE_WHITE:
+                self._icon.icon = 'solid-star'
+                self._label.text = KitLocaleString.white_wins
+            case StatusWidget.Status.CHECKMATE_BLACK:
+                self._icon.icon = 'solid-star'
+                self._label.text = KitLocaleString.black_wins

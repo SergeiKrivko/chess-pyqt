@@ -19,7 +19,7 @@ class MainWindow(KitMainWindow):
         self.set_theme('dark')
         self.theme_manager.add_icons('assets', 'custom')
         self.theme_manager.set_locales_path('src.locale')
-        self.theme_manager.set_locale('en', 'en')
+        self.theme_manager.set_locale('ru', 'en')
 
         self._sm = SettingsManager()
         self._api = ApiService(self._sm)

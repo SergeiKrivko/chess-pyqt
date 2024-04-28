@@ -15,6 +15,7 @@ class Board:
             pos: Figure(item.get('figure'), pos, item.get('actor'))
             for pos, item in data.get('state').items()
         }
+        self.winner: str = data.get("winner")
 
         self.code = None
 
@@ -26,14 +27,15 @@ class Board:
         self.privacy: str = data.get("privacy")
         self.white: str = data.get("white")
         self.black: str = data.get("black")
-        self.status: str = data.get("status")
-        self.update_state(data.get('state'))
+        self.update_state(data)
 
-    def update_state(self, state):
+    def update_state(self, data):
         self.state = {
             pos: Figure(item.get('figure'), pos, item.get('actor'))
-            for pos, item in state.items()
+            for pos, item in data.get('state', dict()).items()
         }
+        self.status = data.get('status')
+        self.winner = data.get('winner')
 
 
 class Move:

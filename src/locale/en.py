@@ -14,4 +14,18 @@ locale = KitLocale('en', 'English', {
     'new': "New",
     'owner': "Owner",
     'invited': "Invited",
+
+    'king': "King",
+    'knight': "Knight",
+    'bishop': "Bishop",
+    'rook': "Rook",
+    'queen': "Queen",
+    'pawn': "Pawn",
+
+    'check': "Check",
+    'checkmate': "Checkmate",
+    'white_moves': "White moves",
+    'black_moves': "Black moves",
+    'white_wins': "White wins",
+    'black_wins': "Black wins",
 })

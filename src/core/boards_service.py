@@ -158,7 +158,7 @@ class BoardsService(QObject):
     async def _update_board_state(self):
         board = self.board
         resp = await self._api.get(f'boards/{self._current}')
-        board.update_state(resp.get('state'))
+        board.update_state(resp)
 
     async def upload_board(self, board: Board):
         await self._api.put(f'boards/{self._current}', {
