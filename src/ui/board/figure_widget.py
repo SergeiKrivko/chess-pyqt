@@ -1,10 +1,13 @@
-from PyQt6.QtCore import QPoint, QPropertyAnimation, QEasingCurve
+from PyQt6.QtCore import QPoint, QPropertyAnimation, QEasingCurve, pyqtSignal, Qt
 from PyQtUIkit.widgets import KitIconWidget
 
+from src import config
 from src.core.figure import Figure
 
 
 class FigureWidget(KitIconWidget):
+    clicked = pyqtSignal(str)
+
     def __init__(self, fig: Figure):
         super().__init__()
         self._fig = fig
@@ -30,23 +33,32 @@ class FigureWidget(KitIconWidget):
             self.main_palette = 'FigureBlack'
 
         self.set_size(64)
-        self._anim = Figure
-        # self.set_pos(4, 4, anim=True)
+        self.__anim = False
+        self.set_pos(self._fig.pos)
 
-    def set_pos(self, x, y, anim=False):
-        self._fig.move(x, y)
+    def set_pos(self, pos, anim=False):
+        self._fig.move(pos)
 
-        if isinstance(self._anim, QPropertyAnimation):
-            self._anim.stop()
+        if isinstance(self.__anim, QPropertyAnimation):
+            self.__anim.stop()
 
         if anim:
-            self._anim = QPropertyAnimation(self, b'pos')
-            self._anim.setEndValue(QPoint(self._pos()))
-            self._anim.setEasingCurve(QEasingCurve.Type.OutCubic)
-            self._anim.setDuration(1000)
-            self._anim.start()
+            self.__anim = QPropertyAnimation(self, b'pos')
+            self.__anim.setEndValue(QPoint(self._pos()))
+            self.__anim.setEasingCurve(QEasingCurve.Type.OutCubic)
+            self.__anim.setDuration(config.MOVE_DURATION)
+            self.__anim.start()
         else:
             self.move(self._pos())
+
+    @property
+    def figure(self):
+        return self._fig
+
+    def mousePressEvent(self, a0):
+        super().mousePressEvent(a0)
+        if a0.button() == Qt.MouseButton.LeftButton:
+            self.clicked.emit(self._fig.pos)
 
     def set_size(self, size):
         self._size = size

@@ -2,24 +2,32 @@ from enum import Enum
 
 
 class Figure:
-    class Type(Enum):
-        BISHOP = 1
-        ROOK = 2
-        QUEEN = 3
-        KNIGHT = 4
-        KING = 5
-        PAWN = 6
+    class Type:
+        BISHOP = 'bishop'
+        ROOK = 'rook'
+        QUEEN = 'queen'
+        KNIGHT = 'knight'
+        KING = 'king'
+        PAWN = 'pawn'
 
-    class Player(Enum):
-        WHITE = 1
-        BLACK = 2
+    class Player:
+        WHITE = 'white'
+        BLACK = 'black'
 
-    def __init__(self, figure: Type, x, y, player: Player):
+    def __init__(self, figure: str, pos: str, player: str):
         self.type = figure
-        self.x = x
-        self.y = y
+        self.pos = pos.lower()
         self.player = player
 
-    def move(self, x, y):
-        self.x = x
-        self.y = y
+    def move(self, pos: str):
+        self.pos = pos.lower()
+
+    @property
+    def x(self):
+        return 'abcdefgh'.index(self.pos[0])
+
+    @property
+    def y(self):
+        return int(self.pos[1]) - 1
+
+
