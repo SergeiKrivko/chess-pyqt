@@ -54,7 +54,7 @@ class GameScreen(KitHBoxLayout):
 
         self._board_widget = BoardWidget()
         self._board_widget.figSelected.connect(lambda fig: self._on_figure_selected(fig))
-        self._board_widget.moveSelected.connect(lambda pos: self._on_move_selected(pos))
+        self._board_widget.moveSelected.connect(lambda pos, prom: self._on_move_selected(pos, prom))
         self.addWidget(self._board_widget)
 
         self._api.boards.boardUpdated.connect(lambda: self._load_ui())
@@ -66,6 +66,7 @@ class GameScreen(KitHBoxLayout):
 
     def _load_state(self):
         self._board_widget.clear()
+        print(self._api.boards.board.state)
         for item in self._api.boards.board.state.values():
             self._board_widget.add_figure(item)
 
@@ -77,16 +78,14 @@ class GameScreen(KitHBoxLayout):
             self._fig = figure
 
     @asyncSlot()
-    async def _on_move_selected(self, pos):
-        res = await self._api.boards.move(self._fig.pos, pos)
-        # if res:
-        #     self._board_widget.move_figure(self._fig.pos, pos)
+    async def _on_move_selected(self, pos, promotion):
+        await self._api.boards.move(self._fig.pos, pos, promotion)
 
     @asyncSlot()
     async def _on_new_move(self, move: Move):
         if move:
             self._board_widget.move_figure(move.src, move.dst)
-            await asyncio.sleep(config.MOVE_DURATION)
+            await asyncio.sleep(config.MOVE_DURATION / 1000)
         self._load_state()
 
     @asyncSlot()

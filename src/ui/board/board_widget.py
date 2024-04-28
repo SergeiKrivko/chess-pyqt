@@ -2,14 +2,16 @@ from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QSizePolicy
 from PyQtUIkit.widgets import KitHBoxLayout, KitVBoxLayout, KitGridLayout, KitIconWidget, KitLayoutButton
 
+from src.core.board import AvailableMove
 from src.core.figure import Figure
 from src.ui.board.figure_widget import FigureWidget
+from src.ui.board.promotion_dialog import PromotionDialog
 
 
 class BoardWidget(KitHBoxLayout):
     figSelected = pyqtSignal(Figure)
     figDeselected = pyqtSignal()
-    moveSelected = pyqtSignal(str)
+    moveSelected = pyqtSignal(str, str)
 
     def __init__(self):
         super().__init__()
@@ -55,18 +57,31 @@ class BoardWidget(KitHBoxLayout):
 
     def _on_click(self, pos):
         if self.__moves:
-            if pos in self.__moves:
-                self.moveSelected.emit(pos)
-            else:
-                self.figDeselected.emit()
+            moves = list(filter(lambda move: move.dst == pos, self.__moves))
+            if moves:
+                if len(moves) > 1:
+                    dialog = PromotionDialog(self, [move.promotion for move in moves])
+                    if dialog.exec():
+                        promotion = dialog.promotion
+                    else:
+                        self._reject_move(pos)
+                        return
+                else:
+                    promotion = None
+                self.moveSelected.emit(pos, promotion)
                 self.hide_available_moves()
-                if pos in self.__figures:
-                    self.figSelected.emit(self.__figures[pos].figure)
-            self.hide_available_moves()
+            else:
+                self._reject_move(pos)
         elif pos in self.__figures:
             self.figSelected.emit(self.__figures[pos].figure)
 
-    def show_available_moves(self, src, moves: list):
+    def _reject_move(self, pos):
+        self.figDeselected.emit()
+        if pos in self.__figures and self.__moves and pos != self.__moves[0].dst:
+            self.figSelected.emit(self.__figures[pos].figure)
+        self.hide_available_moves()
+
+    def show_available_moves(self, src, moves: list[AvailableMove]):
         for cage in self.__cages.values():
             cage.set_not_available()
         self.__cages[src].set_move_this()
@@ -74,9 +89,9 @@ class BoardWidget(KitHBoxLayout):
             moves.remove(src)
         for move in moves:
             if move in self.__figures:
-                self.__cages[move].set_eat_available()
+                self.__cages[move.dst].set_eat_available()
             else:
-                self.__cages[move].set_move_available()
+                self.__cages[move.dst].set_move_available()
         self.__moves = moves
 
     def hide_available_moves(self):

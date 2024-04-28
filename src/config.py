@@ -1,5 +1,8 @@
 APP_NAME = "Chess"
-APP_VERSION = "1.1.0"
 ORGANISATION_NAME = "TheDevDojo"
+APP_VERSION = "1.2.0"
+
+# API_URL = "https://chess.share.zrok.io"
+API_URL = "http://localhost:8000"
 
 MOVE_DURATION = 1000

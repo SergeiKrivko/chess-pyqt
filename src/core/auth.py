@@ -1,6 +1,7 @@
 import aiohttp
 from PyQt6.QtCore import QObject, pyqtSignal
 
+from src import config
 from src.core.settings_manager import SettingsManager
 
 
@@ -11,7 +12,7 @@ class AuthService(QObject):
         super().__init__()
         self._sm = sm
 
-        self._session = aiohttp.ClientSession('http://localhost:8000')
+        self._session = aiohttp.ClientSession(config.API_URL)
 
     async def auth(self, login, password):
         resp = await self._session.post('/api/v1/authentication', json={
@@ -19,12 +20,11 @@ class AuthService(QObject):
             'password': password,
         })
         resp = await resp.json()
-        print(resp)
         resp = resp['data']
 
         self._sm.set('access_token', resp['access_token'])
         self.userChanged.emit()
-        self._sm.set('user_id', resp['sub'])
+        self._sm.set('user_id', resp['user_uuid'])
 
         return resp
 

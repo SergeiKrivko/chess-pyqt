@@ -4,6 +4,8 @@ import uuid
 import aiohttp
 from PyQt6.QtCore import QObject
 
+from src import config
+
 
 class HttpService(QObject):
     def __init__(self):
@@ -25,7 +27,7 @@ class HttpService(QObject):
         if self._session:
             await self._session.close()
         self._user_token = token
-        self._session = aiohttp.ClientSession('http://localhost:8000', headers={
+        self._session = aiohttp.ClientSession(config.API_URL, headers={
             'content-type': 'application/json',
             'authorization': f'Bearer {self._user_token}'
         })

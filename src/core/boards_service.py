@@ -3,7 +3,7 @@ import asyncio
 from PyQt6.QtCore import QObject, pyqtSignal
 from qasync import asyncSlot
 
-from src.core.board import Board, Move
+from src.core.board import Board, Move, AvailableMove
 from src.core.http import HttpService
 from src.core.settings_manager import SettingsManager
 
@@ -130,6 +130,7 @@ class BoardsService(QObject):
             else:
                 self._last_move = move
                 self._now_moves = 'white' if move.actor == 'black' else 'black'
+                await self._update_board_state()
                 self.newMove.emit(move)
             self._available_moves.clear()
 
@@ -154,6 +155,11 @@ class BoardsService(QObject):
         if flag:
             self.boardUpdated.emit()
 
+    async def _update_board_state(self):
+        board = self.board
+        resp = await self._api.get(f'boards/{self._current}')
+        board.update_state(resp.get('state'))
+
     async def upload_board(self, board: Board):
         await self._api.put(f'boards/{self._current}', {
             'mode': board.mode,
@@ -163,7 +169,7 @@ class BoardsService(QObject):
             'black': board.black,
         })
 
-    async def move(self, src, dst):
+    async def move(self, src, dst, promotion):
         if not self.move_required:
             print("Can not move now!")
             return
@@ -172,12 +178,14 @@ class BoardsService(QObject):
             'actor': 'white' if self.is_white else 'black',
             'src': src,
             'dst': dst,
+            'promotion': promotion or None,
         })
         if not move:
             return False
         self._now_moves = 'white' if self.is_black else 'black'
         dct['uuid'] = move
         self._last_move = Move(dct)
+        await self._update_board_state()
         self.newMove.emit(self._last_move)
         self._available_moves.clear()
         return True
@@ -185,4 +193,4 @@ class BoardsService(QObject):
     async def available_moves(self, src):
         if not self._available_moves:
             self._available_moves = await self._api.get(f'moves/legal?board={self._current}')
-        return [move['dst'] for move in filter(lambda m: m['src'] == src, self._available_moves)]
+        return [AvailableMove(move) for move in filter(lambda m: m['src'] == src, self._available_moves)]
