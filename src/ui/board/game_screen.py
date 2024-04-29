@@ -42,26 +42,26 @@ class GameScreen(KitHBoxLayout):
         self._button_back.on_click = self.closeRequested.emit
         top_layout.addWidget(self._button_back)
 
-        right_layout.addWidget(KitLabel(KitLocaleString.white + ':'))
-        self._white_combo_box = KitComboBox()
-        self._white_combo_box.currentValueChanged.connect(lambda: self._on_state_changed())
-        right_layout.addWidget(self._white_combo_box)
-
-        self._white_check_widget = CheckWidget()
-        self._white_check_widget.hide()
-        right_layout.addWidget(self._white_check_widget)
-
-        self._status_widget = StatusWidget()
-        right_layout.addWidget(self._status_widget, 200)
+        right_layout.addWidget(KitLabel(KitLocaleString.black + ':'))
+        self._black_combo_box = KitComboBox()
+        self._black_combo_box.currentValueChanged.connect(lambda: self._on_state_changed())
+        right_layout.addWidget(self._black_combo_box)
 
         self._black_check_widget = CheckWidget()
         self._black_check_widget.hide()
         right_layout.addWidget(self._black_check_widget)
 
-        right_layout.addWidget(KitLabel(KitLocaleString.black + ':'))
-        self._black_combo_box = KitComboBox()
-        self._black_combo_box.currentValueChanged.connect(lambda: self._on_state_changed())
-        right_layout.addWidget(self._black_combo_box)
+        self._status_widget = StatusWidget()
+        right_layout.addWidget(self._status_widget, 200)
+
+        self._white_check_widget = CheckWidget()
+        self._white_check_widget.hide()
+        right_layout.addWidget(self._white_check_widget)
+
+        right_layout.addWidget(KitLabel(KitLocaleString.white + ':'))
+        self._white_combo_box = KitComboBox()
+        self._white_combo_box.currentValueChanged.connect(lambda: self._on_state_changed())
+        right_layout.addWidget(self._white_combo_box)
 
         self._board_widget = BoardWidget()
         self._board_widget.figSelected.connect(lambda fig: self._on_figure_selected(fig))

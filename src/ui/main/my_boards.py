@@ -64,9 +64,21 @@ class MyBoardsScreen(KitVBoxLayout):
     def add_board(self, board: Board):
         if board.owner == self._sm.get('user_id'):
             item = GameItem(self._api, board, True)
-            self._owner_layout.addWidget(item)
+
+            index = 0
+            for el in self._owner_layout.widgets():
+                if el.board.created_at > board.created_at:
+                    break
+                index += 1
+
+            self._owner_layout.insertWidget(index, item)
         else:
             item = GameItem(self._api, board, False)
+            index = 0
+            for el in self._invited_layout.widgets():
+                if el.board.created_at > board.created_at:
+                    break
+                index += 1
             self._invited_layout.addWidget(item)
         item.on_click = lambda: self.openBoardRequested.emit(board.id)
 
@@ -123,6 +135,10 @@ class GameItem(KitLayoutButton):
         self.on_click = lambda: print(self._label.text)
 
         self.load()
+
+    @property
+    def board(self):
+        return self._board
 
     @asyncSlot()
     async def load(self):

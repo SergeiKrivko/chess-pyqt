@@ -1,3 +1,5 @@
+import datetime
+
 from src.core.figure import Figure
 
 
@@ -16,6 +18,7 @@ class Board:
             for pos, item in data.get('state').items()
         }
         self.winner: str = data.get("winner")
+        self.created_at = datetime.datetime.fromisoformat(data.get("created_at"))
 
         self.code = None
 
