@@ -28,4 +28,11 @@ locale = KitLocale('en', 'English', {
     'black_moves': "Black moves",
     'white_wins': "White wins",
     'black_wins': "Black wins",
+
+    'sign_out': "Sign out",
+    'change_pass': "Change password",
+    'theme': "Theme",
+    'dark': "Dark",
+    'light': "Light",
+    'language': "Language",
 })

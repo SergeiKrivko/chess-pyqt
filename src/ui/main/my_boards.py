@@ -59,6 +59,7 @@ class MyBoardsScreen(KitVBoxLayout):
         scroll_layout.addWidget(self._invited_layout)
 
         self._api.boards.newBoard.connect(self.add_board)
+        self._api.auth.userChanged.connect(self._clear)
 
     def add_board(self, board: Board):
         if board.owner == self._sm.get('user_id'):
@@ -68,6 +69,10 @@ class MyBoardsScreen(KitVBoxLayout):
             item = GameItem(self._api, board, False)
             self._invited_layout.addWidget(item)
         item.on_click = lambda: self.openBoardRequested.emit(board.id)
+
+    def _clear(self):
+        self._owner_layout.clear()
+        self._invited_layout.clear()
 
     @asyncSlot()
     async def _new_game(self):

@@ -26,4 +26,10 @@ locale = KitLocale('ru', 'Русский', {
     'black_moves': "Черные ходят",
     'white_wins': "Белые победили",
     'black_wins': "Черные победили",
+    'sign_out': "Выйти",
+    'change_pass': "Изменить пароль",
+    'theme': "Тема",
+    'dark': "Темная",
+    'light': "Светлая",
+    'language': "Язык",
 })

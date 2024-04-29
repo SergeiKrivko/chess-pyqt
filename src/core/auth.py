@@ -39,3 +39,8 @@ class AuthService(QObject):
         self._sm.set('user_login', login)
         return resp
 
+    def sign_out(self):
+        self._sm.set('user_id', '')
+        self._sm.set('access_token', '')
+        self.userChanged.emit()
+

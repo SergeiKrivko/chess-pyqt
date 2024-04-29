@@ -26,4 +26,10 @@ locale = KitLocale('fr', 'Français', {
     'black_moves': "Black Moves",
     'white_wins': "White gagne",
     'black_wins': "Black gagne",
+    'sign_out': "se déconnecter",
+    'change_pass': "Changer le mot de passe",
+    'theme': "Thème",
+    'dark': "Sombre",
+    'light': "Lumière",
+    'language': "Langue",
 })

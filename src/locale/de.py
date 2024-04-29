@@ -26,4 +26,10 @@ locale = KitLocale('de', 'Deutsch', {
     'black_moves': "Schwarze bewegt sich",
     'white_wins': "Weiße Gewinne",
     'black_wins': "Schwarze Siege",
+    'sign_out': "Abmelden",
+    'change_pass': "Kennwort ändern",
+    'theme': "Thema",
+    'dark': "Dunkel",
+    'light': "Licht",
+    'language': "Sprache",
 })

@@ -4,6 +4,7 @@ from PyQtUIkit.widgets import *
 from src.core.service import ApiService
 from src.core.settings_manager import SettingsManager
 from src.ui.main.my_boards import MyBoardsScreen
+from src.ui.main.settings_screen import SettingsScreen
 
 
 class MainScreen(KitHBoxLayout):
@@ -26,4 +27,11 @@ class MainScreen(KitHBoxLayout):
         self._my_boards = MyBoardsScreen(self._sm, self._service)
         self._my_boards.openBoardRequested.connect(self.openBoardRequested.emit)
         self._tab_layout.addWidget(self._my_boards)
+
+        self._tab_layout.addWidget(KitVBoxLayout())
+
+        self._settings = SettingsScreen(self._sm, self._service)
+        self._tab_layout.addWidget(self._settings)
+
+        self._tab_layout.connect(self._nav)
 
