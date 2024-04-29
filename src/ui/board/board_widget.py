@@ -30,7 +30,7 @@ class BoardWidget(KitHBoxLayout):
         for i in range(8):
             for j in range(8):
                 cage = Cage(i, j)
-                self.__cages[pos := f"{'abcdefgh'[j]}{i + 1}"] = cage
+                self.__cages[pos := f"{'abcdefgh'[j]}{8 - i}"] = cage
                 cage.on_click = lambda x, p=pos: self._on_click(p)
                 self.__grid.addWidget(cage, i, j)
 

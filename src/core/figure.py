@@ -28,6 +28,6 @@ class Figure:
 
     @property
     def y(self):
-        return int(self.pos[1]) - 1
+        return 8 - int(self.pos[1])
 
 

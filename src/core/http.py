@@ -34,28 +34,48 @@ class HttpService(QObject):
         self._auth_id = uuid.uuid4()
 
     async def get(self, url):
-        async with self._session.get(f'{self._url}/{url}') as response:
-            res = await response.json()
-            self._print_detail(url, res)
-            return res.get('data')
+        try:
+            async with self._session.get(f'{self._url}/{url}') as response:
+                res = await response.json()
+                self._print_detail(url, res)
+                return res.get('data')
+        except aiohttp.ServerDisconnectedError:
+            return None
+        except aiohttp.ClientConnectionError:
+            return None
 
     async def post(self, url, data):
-        async with self._session.post(f'{self._url}/{url}', json=data) as response:
-            res = await response.json()
-            self._print_detail(url, res)
-            return res.get('data')
+        try:
+            async with self._session.post(f'{self._url}/{url}', json=data) as response:
+                res = await response.json()
+                self._print_detail(url, res)
+                return res.get('data')
+        except aiohttp.ServerDisconnectedError:
+            return None
+        except aiohttp.ClientConnectionError:
+            return None
 
     async def put(self, url, data):
-        async with self._session.put(f'{self._url}/{url}', json=data) as response:
-            res = await response.json()
-            self._print_detail(url, res)
-            return res.get('data')
+        try:
+            async with self._session.put(f'{self._url}/{url}', json=data) as response:
+                res = await response.json()
+                self._print_detail(url, res)
+                return res.get('data')
+        except aiohttp.ServerDisconnectedError:
+            return None
+        except aiohttp.ClientConnectionError:
+            return None
 
     async def delete(self, url):
-        async with self._session.delete(f'{self._url}/{url}') as response:
-            res = await response.json()
-            self._print_detail(url, res)
-            return res.get('data')
+        try:
+            async with self._session.delete(f'{self._url}/{url}') as response:
+                res = await response.json()
+                self._print_detail(url, res)
+                return res.get('data')
+        except aiohttp.ServerDisconnectedError:
+            return None
+        except aiohttp.ClientConnectionError:
+            return None
 
     async def poll(self, url, step=1):
         if not self._auth_id:

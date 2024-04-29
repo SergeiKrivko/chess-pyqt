@@ -54,7 +54,6 @@ class BoardsService(QObject):
         return self._now_moves
 
     def run(self):
-        print('run')
         self._download_boards()
 
     @asyncSlot()
@@ -63,8 +62,8 @@ class BoardsService(QObject):
         uid = self._sm.uid
         while uid == self._sm.uid:
             if self._current is None:
-                res1 = await self._api.get(f"boards?owner={uid}")
-                res2 = await self._api.get(f"boards?invited={uid}")
+                res1 = await self._api.get(f"boards?owner={uid}") or []
+                res2 = await self._api.get(f"boards?invited={uid}") or []
                 for el in res1 + res2:
                     board = Board(el)
                     if board.id in self._boards:
