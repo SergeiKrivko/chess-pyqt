@@ -1,4 +1,4 @@
-PyQtUIkit~=2.8.2
+PyQtUIkit~=2.8.3
 qasync~=0.27.1
 PyQt6~=6.6.1
 aiohttp~=3.9.5

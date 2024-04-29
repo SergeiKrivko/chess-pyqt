@@ -59,6 +59,7 @@ class MyBoardsScreen(KitVBoxLayout):
         scroll_layout.addWidget(self._invited_layout)
 
         self._api.boards.newBoard.connect(self.add_board)
+        self._api.boards.boardDeleted.connect(self.remove_board)
         self._api.auth.userChanged.connect(self._clear)
 
     def add_board(self, board: Board):
@@ -74,13 +75,25 @@ class MyBoardsScreen(KitVBoxLayout):
             self._owner_layout.insertWidget(index, item)
         else:
             item = GameItem(self._api, board, False)
+
             index = 0
             for el in self._invited_layout.widgets():
                 if el.board.created_at > board.created_at:
                     break
                 index += 1
-            self._invited_layout.addWidget(item)
+            self._invited_layout.insertWidget(index, item)
+
         item.on_click = lambda: self.openBoardRequested.emit(board.id)
+
+    def remove_board(self, board_id: str):
+        for el in self._owner_layout.widgets():
+            if el.board.id == board_id:
+                self._owner_layout.removeWidget(el)
+                return
+        for el in self._invited_layout.widgets():
+            if el.board.id == board_id:
+                self._invited_layout.removeWidget(el)
+                return
 
     def _clear(self):
         self._owner_layout.clear()

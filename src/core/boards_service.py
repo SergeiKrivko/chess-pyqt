@@ -10,6 +10,7 @@ from src.core.settings_manager import SettingsManager
 
 class BoardsService(QObject):
     newBoard = pyqtSignal(object)
+    boardDeleted = pyqtSignal(object)
     newMove = pyqtSignal(object)
     boardUpdated = pyqtSignal()
 
@@ -62,9 +63,9 @@ class BoardsService(QObject):
         uid = self._sm.uid
         while uid == self._sm.uid:
             if self._current is None:
-                res1 = await self._api.get(f"boards?owner={uid}") or []
-                res2 = await self._api.get(f"boards?invited={uid}") or []
-                for el in res1 + res2:
+                res1 = await self._api.get(f"boards?owner={uid}")
+                res2 = await self._api.get(f"boards?invited={uid}")
+                for el in res1 or [] + res2 or []:
                     board = Board(el)
                     if board.id in self._boards:
                         continue
@@ -75,6 +76,15 @@ class BoardsService(QObject):
 
                     self._boards[board.id] = board
                     self.newBoard.emit(board)
+
+                if res1 is not None and res2 is not None:
+                    ids = [el['uuid'] for el in res1 + res2]
+                    for board_id in list(self._boards.keys()):
+                        if board_id not in ids:
+                            print(f"DELETE {board_id}")
+                            self.boardDeleted.emit(board_id)
+                            self._boards.pop(board_id)
+
             await asyncio.sleep(5)
 
     async def new(self):
