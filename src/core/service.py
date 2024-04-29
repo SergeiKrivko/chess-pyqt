@@ -26,7 +26,9 @@ class ApiService(QObject):
 
     @asyncSlot()
     async def _on_user_changed(self):
-        await self.http.set_token(self._sm.get('access_token'))
-        self.userChanged.emit(self._sm.get('user_id'))
+        self.boards.clear()
+        if self._sm.uid:
+            await self.http.set_token(self._sm.get('access_token'))
+            self.boards.run()
 
-        self.boards.run()
+        self.userChanged.emit(self._sm.get('user_id'))

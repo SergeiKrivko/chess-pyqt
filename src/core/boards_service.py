@@ -65,7 +65,7 @@ class BoardsService(QObject):
             if self._current is None:
                 res1 = await self._api.get(f"boards?owner={uid}")
                 res2 = await self._api.get(f"boards?invited={uid}")
-                for el in res1 or [] + res2 or []:
+                for el in (res1 or []) + (res2 or []):
                     board = Board(el)
                     if board.id in self._boards:
                         continue
@@ -117,6 +117,10 @@ class BoardsService(QObject):
 
     def close(self):
         self._current = None
+
+    def clear(self):
+        self.close()
+        self._boards.clear()
 
     @asyncSlot()
     async def _poll(self):
