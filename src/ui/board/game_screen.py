@@ -81,14 +81,16 @@ class GameScreen(KitHBoxLayout):
 
         self._api.boards.boardUpdated.connect(lambda: self._load_ui())
         self._api.boards.newMove.connect(lambda move: self._on_new_move(move))
+        self._api.boards.loadingComplete.connect(self._update_game_status)
 
     def open(self):
-        self._load_state()
+        self._load_state(self._api.boards.board.state)
         self._load_ui()
+        self._update_game_status()
 
-    def _load_state(self):
+    def _load_state(self, state):
         self._board_widget.clear()
-        for item in self._api.boards.board.state.values():
+        for item in state.values():
             self._board_widget.add_figure(item)
 
     @asyncSlot()
@@ -104,10 +106,11 @@ class GameScreen(KitHBoxLayout):
 
     @asyncSlot()
     async def _on_new_move(self, move: Move):
+        state = self._api.boards.board.state
         if move:
             self._board_widget.move_figure(move.src, move.dst)
             await asyncio.sleep(config.MOVE_DURATION / 1000)
-        self._load_state()
+        self._load_state(state)
         self._update_game_status()
 
     def _update_game_status(self):

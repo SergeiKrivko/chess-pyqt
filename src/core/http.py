@@ -19,8 +19,8 @@ class HttpService(QObject):
         self._auth_id = None
 
     @staticmethod
-    def _print_detail(m: str, url, resp):
-        print(m.upper(), repr(url), resp.get('detail'))
+    def _print_detail(method: str, url, resp):
+        print(f"\033[31m{method.upper()}\033[0m \033[34m/{url}\033[0m {resp.get('detail')}")
         # print(resp)
 
     async def set_token(self, token):
