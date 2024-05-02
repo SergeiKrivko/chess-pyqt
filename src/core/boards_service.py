@@ -147,6 +147,7 @@ class BoardsService(QObject):
 
     async def _check_first_move(self):
         move = await self._api.get(f'moves/last?board={self._current}')
+        self._last_last_move_id = None
         if not move:
             self._now_moves = 'white'
             self._last_move = None

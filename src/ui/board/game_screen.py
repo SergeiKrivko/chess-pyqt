@@ -59,6 +59,7 @@ class GameScreen(KitHBoxLayout):
         self._undo_button = KitIconButton('solid-arrow-undo')
         self._undo_button.size = 40
         self._undo_button.radius = 10
+        self._undo_button.hide()
         self._undo_button.on_click = lambda: self._on_undo_clicked()
         right_layout.addWidget(self._undo_button)
 
