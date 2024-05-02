@@ -14,6 +14,9 @@ locale = KitLocale('en', 'English', {
     'new': "New",
     'owner': "Owner",
     'invited': "Invited",
+    'my_boards': "My boards",
+    'public_boards': "Public boards",
+    'settings': "Settings",
 
     'king': "King",
     'knight': "Knight",

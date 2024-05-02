@@ -19,8 +19,8 @@ class HttpService(QObject):
         self._auth_id = None
 
     @staticmethod
-    def _print_detail(url, resp):
-        print(repr(url), resp.get('detail'))
+    def _print_detail(m: str, url, resp):
+        print(m.upper(), repr(url), resp.get('detail'))
         # print(resp)
 
     async def set_token(self, token):
@@ -37,7 +37,7 @@ class HttpService(QObject):
         try:
             async with self._session.get(f'{self._url}/{url}') as response:
                 res = await response.json()
-                self._print_detail(url, res)
+                self._print_detail('get', url, res)
                 return res.get('data')
         except aiohttp.ServerDisconnectedError:
             return None
@@ -48,7 +48,7 @@ class HttpService(QObject):
         try:
             async with self._session.post(f'{self._url}/{url}', json=data) as response:
                 res = await response.json()
-                self._print_detail(url, res)
+                self._print_detail('post', url, res)
                 return res.get('data')
         except aiohttp.ServerDisconnectedError:
             return None
@@ -59,7 +59,7 @@ class HttpService(QObject):
         try:
             async with self._session.put(f'{self._url}/{url}', json=data) as response:
                 res = await response.json()
-                self._print_detail(url, res)
+                self._print_detail('put', url, res)
                 return res.get('data')
         except aiohttp.ServerDisconnectedError:
             return None
@@ -70,7 +70,7 @@ class HttpService(QObject):
         try:
             async with self._session.delete(f'{self._url}/{url}') as response:
                 res = await response.json()
-                self._print_detail(url, res)
+                self._print_detail('delete', url, res)
                 return res.get('data')
         except aiohttp.ServerDisconnectedError:
             return None

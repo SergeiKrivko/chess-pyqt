@@ -51,8 +51,18 @@ class GameScreen(KitHBoxLayout):
         self._black_check_widget.hide()
         right_layout.addWidget(self._black_check_widget)
 
+        right_layout.addWidget(KitVBoxLayout(), 100)
+
         self._status_widget = StatusWidget()
-        right_layout.addWidget(self._status_widget, 200)
+        right_layout.addWidget(self._status_widget)
+
+        self._undo_button = KitIconButton('solid-arrow-undo')
+        self._undo_button.size = 40
+        self._undo_button.radius = 10
+        self._undo_button.on_click = lambda: self._on_undo_clicked()
+        right_layout.addWidget(self._undo_button)
+
+        right_layout.addWidget(KitVBoxLayout(), 100)
 
         self._white_check_widget = CheckWidget()
         self._white_check_widget.hide()
@@ -112,9 +122,19 @@ class GameScreen(KitHBoxLayout):
                 else StatusWidget.Status.BLACK_MOVES
         self._status_widget.set_status(status)
 
+        self._undo_button.setHidden(not self._api.boards.undo_available)
+
+    @asyncSlot()
+    async def _on_undo_clicked(self):
+        await self._api.boards.undo_move()
+
     @asyncSlot()
     async def _load_ui(self):
         self._loading = True
+
+        self._white_combo_box.setDisabled(not self._api.boards.is_owner)
+        self._black_combo_box.setDisabled(not self._api.boards.is_owner)
+
         await self._update_combo_box(self._white_combo_box, self._api.boards.board.white)
         await self._update_combo_box(self._black_combo_box, self._api.boards.board.black)
         self._loading = False
@@ -161,8 +181,6 @@ class StatusWidget(KitVBoxLayout):
         super().__init__()
         self.spacing = 10
 
-        self.addWidget(KitVBoxLayout(), 100)
-
         self._icon = KitIconWidget('solid-time')
         self._icon.setFixedHeight(100)
         self.addWidget(self._icon)
@@ -171,8 +189,6 @@ class StatusWidget(KitVBoxLayout):
         self._label.font_size = KitFont.Size.BIG
         self._label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.addWidget(self._label)
-
-        self.addWidget(KitVBoxLayout(), 100)
 
     def set_status(self, status: Status):
         match status:

@@ -1,4 +1,5 @@
 import asyncio
+from uuid import uuid4
 
 from PyQt6.QtCore import QObject, pyqtSignal
 from qasync import asyncSlot
@@ -26,7 +27,8 @@ class BoardsService(QObject):
         self._available_moves = []
 
         self._last_move: Move | None = None
-        self._las_last_move_id: str | None = None
+        self._last_last_move_id: str | None = None
+        self._poll_id = None
 
     @property
     def board(self) -> Board | None:
@@ -49,6 +51,18 @@ class BoardsService(QObject):
     @property
     def is_black(self):
         return self._sm.uid == self.board.black
+
+    @property
+    def is_owner(self):
+        return self._sm.uid == self.board.owner
+
+    @property
+    def undo_available(self):
+        if self._now_moves == 'white':
+            return self._last_move is not None and self.is_black
+        if self._now_moves == 'black':
+            return self._last_move is not None and self.is_white
+        return False
 
     @property
     def now_moves(self):
@@ -124,24 +138,35 @@ class BoardsService(QObject):
 
     @asyncSlot()
     async def _poll(self):
-        board_id = self._current
-        while self._current == board_id:
+        poll_id = self._poll_id = uuid4()
+        await self._check_first_move()
+        while self._poll_id == poll_id:
             await self._check_move()
             await self._update_board()
             await asyncio.sleep(3)
 
-    async def _check_move(self):
+    async def _check_first_move(self):
         move = await self._api.get(f'moves/last?board={self._current}')
         if not move:
-            if self.board.white == self._sm.uid and not self.move_required:
-                self._now_moves = 'white'
-                self.newMove.emit(None)
-                self._available_moves.clear()
-            return
-        move = Move(move)
+            self._now_moves = 'white'
+            self._last_move = None
+        else:
+            self._last_move = Move(move)
+            self._now_moves = 'white' if self._last_move.actor == 'black' else 'black'
+
+    async def _check_move(self):
+        move = await self._api.get(f'moves/last?board={self._current}')
+        move = None if move is None else Move(move)
         if move != self._last_move:
-            if move.id == self._las_last_move_id:
-                pass
+            if move is None and self._last_last_move_id is None or move.id == self._last_last_move_id:
+                self._now_moves = 'white' if self._last_move.actor == 'white' else 'black'
+                await self._update_board_state()
+                self.newMove.emit(Move({
+                    'actor': self._last_move.actor,
+                    'src': self._last_move.dst,
+                    'dst': self._last_move.src,
+                }))
+                self._last_move = None
             else:
                 self._last_move = move
                 self._now_moves = 'white' if move.actor == 'black' else 'black'
@@ -204,6 +229,26 @@ class BoardsService(QObject):
         self._last_move = Move(dct)
         await self._update_board_state()
         self.newMove.emit(self._last_move)
+        self._available_moves.clear()
+        return True
+
+    async def undo_move(self):
+        if not self.undo_available:
+            print("Can not undo now!")
+            return
+        move = await self._api.delete(f'moves/last?board={self._current}')
+        print(move)
+        if not move:
+            return False
+        self._now_moves = 'white' if self.is_white else 'black'
+        await self._update_board_state()
+        self.newMove.emit(Move({
+            'uuid': move,
+            'src': self._last_move.dst,
+            'dst': self._last_move.src,
+            'actor': self._now_moves,
+        }))
+        self._last_move = None
         self._available_moves.clear()
         return True
 

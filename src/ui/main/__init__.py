@@ -1,4 +1,5 @@
 from PyQt6.QtCore import pyqtSignal
+from PyQtUIkit.themes.locale import KitLocaleString
 from PyQtUIkit.widgets import *
 
 from src.core.service import ApiService
@@ -16,9 +17,9 @@ class MainScreen(KitHBoxLayout):
         self._service = service
 
         self._nav = KitNavigation()
-        self._nav.addTab("My boards", 'solid-apps')
-        self._nav.addTab("Public boards", 'solid-people')
-        self._nav.addTab("Settings", 'solid-settings')
+        self._nav.addTab(KitLocaleString.my_boards, 'solid-apps')
+        self._nav.addTab(KitLocaleString.public_boards, 'solid-people')
+        self._nav.addTab(KitLocaleString.settings, 'solid-settings')
         self.addWidget(self._nav)
 
         self._tab_layout = KitTabLayout()
