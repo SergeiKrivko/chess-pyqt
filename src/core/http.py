@@ -20,8 +20,11 @@ class HttpService(QObject):
 
     @staticmethod
     def _print_detail(method: str, url, resp):
-        print(f"\033[31m{method.upper()}\033[0m \033[34m/{url}\033[0m {resp.get('detail')}")
-        # print(resp)
+        if 'detail' in resp:
+            detail = resp['detail']
+        else:
+            detail = resp
+        print(f"\033[31m{method.upper():6}\033[0m \033[34m/{url:55}\033[0m {detail}")
 
     async def set_token(self, token):
         if self._session:

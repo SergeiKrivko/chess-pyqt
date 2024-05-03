@@ -88,7 +88,7 @@ class BoardWidget(KitHBoxLayout):
         if src in moves:
             moves.remove(src)
         for move in moves:
-            if move in self.__figures:
+            if move.dst in self.__figures:
                 self.__cages[move.dst].set_eat_available()
             else:
                 self.__cages[move.dst].set_move_available()
@@ -135,9 +135,9 @@ class Cage(KitLayoutButton):
             self.main_palette = 'CageBlack'
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
-        self._move_this = KitIconWidget('solid-add-circle')
+        self._move_this = KitIconWidget('custom-move-mark')
         self._move_this.main_palette = 'Success'
-        self._move_this.setFixedSize(30, 30)
+        # self._move_this.setFixedSize(30, 30)
         self._move_this.hide()
         self.addWidget(self._move_this)
 
@@ -147,9 +147,9 @@ class Cage(KitLayoutButton):
         self._move_available.hide()
         self.addWidget(self._move_available)
 
-        self._eat_available = KitIconWidget('solid-add-circle')
+        self._eat_available = KitIconWidget('custom-move-mark')
         self._eat_available.main_palette = 'Danger'
-        self._eat_available.setFixedSize(30, 30)
+        # self._eat_available.setFixedSize(30, 30)
         self._eat_available.hide()
         self.addWidget(self._eat_available)
 

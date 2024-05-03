@@ -107,11 +107,11 @@ class GameScreen(KitHBoxLayout):
     @asyncSlot()
     async def _on_new_move(self, move: Move):
         state = self._api.boards.board.state
+        self._update_game_status()
         if move:
             self._board_widget.move_figure(move.src, move.dst)
             await asyncio.sleep(config.MOVE_DURATION / 1000)
         self._load_state(state)
-        self._update_game_status()
 
     def _update_game_status(self):
         board = self._api.boards.board

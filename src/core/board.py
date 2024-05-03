@@ -54,7 +54,6 @@ class Move:
 
 class AvailableMove:
     def __init__(self, data: dict):
-        print(data)
         self.src: str = data.get("src")
         self.dst: str = data.get("dst")
         self.promotion: str = data.get("promotion")

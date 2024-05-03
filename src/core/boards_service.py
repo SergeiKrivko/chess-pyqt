@@ -223,14 +223,14 @@ class BoardsService(QObject):
             return
         move = await self._api.post(f'moves', dct := {
             'board': self._current,
-            'actor': 'white' if self.is_white else 'black',
+            'actor': self.now_moves,
             'src': src,
             'dst': dst,
             'promotion': promotion or None,
         })
         if not move:
             return False
-        self._now_moves = 'white' if self.is_black else 'black'
+        self._now_moves = 'white' if self._now_moves == 'black' else 'black'
         dct['uuid'] = move
         self._last_move = Move(dct)
         await self._update_board_state()
