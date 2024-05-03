@@ -45,7 +45,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Chess_windows.exe
-          path: dist\Chess_setup.exe
+          path: dist\chess_setup.exe
 
   build-linux:
     name: Build for Linux
@@ -93,7 +93,7 @@ jobs:
           version: ${{ steps.build.outputs.version }}
           arch: 'amd64'
           desc: 'Chess'
-      
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -119,7 +119,7 @@ jobs:
           source venv/bin/activate
           
           python3 -m pip install -r requirements.txt
-          python3 -m pip install --upgrade pyinstaller==6.3.0
+          python3 -m pip install --upgrade pyinstaller==6.3.0 pillow
 
       - name: Build by Pyinstaller
         env:
