@@ -1,5 +1,6 @@
 from PyQtUIkit.widgets import KitMainWindow, KitTabLayout
 
+from src import config
 from src.core.service import ApiService
 from src.core.settings_manager import SettingsManager
 from src.ui.auth import AuthScreen
@@ -20,7 +21,7 @@ class MainWindow(KitMainWindow):
         for key, item in THEMES.items():
             self.theme_manager.add_theme(key, item)
         self.set_theme(self._sm.get('theme', 'dark'))
-        self.theme_manager.add_icons('assets', 'custom')
+        self.theme_manager.add_icons(f'assets.svgs', 'custom')
         self.theme_manager.set_locales_path('src.locale')
         self.theme_manager.set_locale(self._sm.get('language'), 'en')
         self.theme_manager.get_languages = lambda: [

@@ -143,7 +143,7 @@ class Cage(KitLayoutButton):
 
         self._move_available = KitIconWidget('solid-add-circle')
         self._move_available.main_palette = 'Warning'
-        self._move_available.setFixedSize(30, 30)
+        self._move_available.setMaximumSize(30, 30)
         self._move_available.hide()
         self.addWidget(self._move_available)
 

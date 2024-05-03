@@ -1,0 +1,143 @@
+name: Build
+on: [push, pull_request]
+
+jobs:
+  build-windows:
+    name: Build for Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          venv\Scripts\Activate.ps1
+          
+          python -m pip install -r requirements.txt
+          python -m pip install --upgrade pyinstaller==6.3.0 pillow
+
+      - name: Build by Pyinstaller
+        env:
+          SECRET_CONFIG: ${{ secrets.SECRET_CONFIG }}
+        run: |
+          venv\Scripts\Activate.ps1
+          python -c "print(__import__('os').getenv('SECRET_CONFIG'))" > src/secret_config.py
+          pyinstaller --noconfirm Chess.spec
+
+      - name: Fix Qt6, Update setup.iss
+        run: |
+          python fix_version.py
+
+      - name: Compile .ISS to .EXE Installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        with:
+          path: setup.iss
+          options: /O+
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Chess_windows.exe
+          path: dist\Chess_setup.exe
+
+  build-linux:
+    name: Build for Linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          python3.11 -m venv venv
+          source venv/bin/activate
+          
+          python3 -m pip install -r requirements.txt
+          python3 -m pip install --upgrade pyinstaller==6.3.0
+
+      - name: Build by Pyinstaller
+        id: build
+        env:
+          SECRET_CONFIG: ${{ secrets.SECRET_CONFIG }}
+        run: |
+          source venv/bin/activate
+          python -c "print(__import__('os').getenv('SECRET_CONFIG'))" > src/secret_config.py
+          pyinstaller --noconfirm Chess.spec
+          cd src
+          python3 -c "print('version=', __import__('config').APP_VERSION, sep='')" >> $GITHUB_OUTPUT
+
+      - name: Prepare DEP package
+        run: |
+          source venv/bin/activate
+          python3 create_debpkg.py
+
+      - name: Create DEB package
+        uses: jiro4989/build-deb-action@v3
+        with:
+          package: chess
+          package_root: dist/debpkg
+          maintainer: TheDevDojo
+          version: ${{ steps.build.outputs.version }}
+          arch: 'amd64'
+          desc: 'Chess'
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Chess_linux.deb
+          path: chess_${{ steps.build.outputs.version }}_amd64.deb
+
+  build-macos:
+    name: Build for macOS
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          python3.11 -m venv venv
+          source venv/bin/activate
+          
+          python3 -m pip install -r requirements.txt
+          python3 -m pip install --upgrade pyinstaller==6.3.0
+
+      - name: Build by Pyinstaller
+        env:
+          SECRET_CONFIG: ${{ secrets.SECRET_CONFIG }}
+        run: |
+          source venv/bin/activate
+          python -c "print(__import__('os').getenv('SECRET_CONFIG'))" > src/secret_config.py
+          pyinstaller --noconfirm Chess.spec
+          rm -rf dist/Chess
+
+      - name: Create installer
+        uses: QQxiaoming/create-dmg-action@v0.0.2
+        with:
+          name: 'Chess'
+          srcdir: 'dist/Chess.app'
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Chess_macos.dmg
+          path: Chess.dmg
