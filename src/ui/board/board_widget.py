@@ -21,23 +21,31 @@ class BoardWidget(KitHBoxLayout):
         self.addWidget(v_layout)
 
         self.__moves = []
+        self.__inversion = False
 
         self.__cages: dict[str: Cage] = dict()
 
         self.__grid = KitGridLayout()
         self.__grid.setMaximumSize(self._size, self._size)
         v_layout.addWidget(self.__grid)
-        for i in range(8):
-            for j in range(8):
-                cage = Cage(i, j)
-                self.__cages[pos := f"{'abcdefgh'[j]}{8 - i}"] = cage
-                cage.on_click = lambda x, p=pos: self._on_click(p)
-                self.__grid.addWidget(cage, i, j)
+        self._create_grid()
 
         self.__figures: dict[str, FigureWidget] = {}
 
+    def _create_grid(self):
+        for i in range(8):
+            for j in range(8):
+                cage = Cage(i, j)
+                self.__cages[pos := f"{'abcdefgh'[(7 - j) if self.__inversion else j]}{(i + 1) if self.__inversion else (8 - i)}"] = cage
+                cage.on_click = lambda x, p=pos: self._on_click(p)
+                self.__grid.addWidget(cage, i, j)
+
+    def set_inversion(self, inversion: bool):
+        self.__inversion = inversion
+        self._create_grid()
+
     def add_figure(self, figure: Figure):
-        widget = FigureWidget(figure)
+        widget = FigureWidget(figure, self.__inversion)
         self.__figures[figure.pos] = widget
         widget.setParent(self.__grid)
         widget.set_size(self._size // 8)

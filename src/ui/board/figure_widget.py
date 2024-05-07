@@ -8,9 +8,10 @@ from src.core.figure import Figure
 class FigureWidget(KitIconWidget):
     clicked = pyqtSignal(str)
 
-    def __init__(self, fig: Figure):
+    def __init__(self, fig: Figure, inversion: bool):
         super().__init__()
         self._fig = fig
+        self._inversion = inversion
         self._size = 0
         self.setContentsMargins(10, 10, 10, 10)
         match self._fig.type:
@@ -67,4 +68,6 @@ class FigureWidget(KitIconWidget):
         self.update()
 
     def _pos(self):
+        if self._inversion:
+            return QPoint((7 - self._fig.x) * self._size, (7 - self._fig.y) * self._size)
         return QPoint(self._fig.x * self._size, self._fig.y * self._size)

@@ -84,6 +84,7 @@ class GameScreen(KitHBoxLayout):
         self._api.boards.loadingComplete.connect(self._update_game_status)
 
     def open(self):
+        self._board_widget.set_inversion(self._api.boards.is_black)
         self._load_state(self._api.boards.board.state)
         self._load_ui()
         self._update_game_status()
